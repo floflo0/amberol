@@ -61,22 +61,7 @@ mod imp {
             obj.setup_channel();
             obj.setup_gactions();
             obj.setup_settings();
-
-            obj.set_accels_for_action("app.quit", &["<primary>q"]);
-
-            obj.set_accels_for_action("queue.add-song", &["<primary>s"]);
-            obj.set_accels_for_action("queue.add-folder", &["<primary>a"]);
-            obj.set_accels_for_action("queue.clear", &["<primary>L"]);
-            obj.set_accels_for_action("queue.toggle", &["F9"]);
-            obj.set_accels_for_action("queue.search", &["<primary>F"]);
-            obj.set_accels_for_action("queue.shuffle", &["<primary>r"]);
-
-            obj.set_accels_for_action("win.seek-backwards", &["<primary>Left"]);
-            obj.set_accels_for_action("win.seek-forward", &["<primary>Right"]);
-            obj.set_accels_for_action("win.previous", &["<primary>b"]);
-            obj.set_accels_for_action("win.next", &["<primary>n"]);
-            obj.set_accels_for_action("win.play", &["<primary>p"]);
-            obj.set_accels_for_action("win.copy", &["<primary>c"]);
+            obj.setup_accels();
         }
     }
 
@@ -132,6 +117,40 @@ impl Application {
     pub fn player(&self) -> Rc<AudioPlayer> {
         self.imp().player.clone()
     }
+
+    #[cfg(not(feature="shortcuts"))]
+    fn setup_accels(&self) {
+        self.set_accels_for_action("queue.add-song", &["<primary>s"]);
+        self.set_accels_for_action("queue.add-folder", &["<primary>a"]);
+        self.set_accels_for_action("queue.clear", &["<primary>L"]);
+        self.set_accels_for_action("queue.toggle", &["F9"]);
+        self.set_accels_for_action("queue.search", &["<primary>F"]);
+        self.set_accels_for_action("queue.shuffle", &["<primary>r"]);
+
+        self.set_accels_for_action("win.seek-backwards", &["<primary>Left"]);
+        self.set_accels_for_action("win.seek-forward", &["<primary>Right"]);
+        self.set_accels_for_action("win.previous", &["<primary>b"]);
+        self.set_accels_for_action("win.next", &["<primary>n"]);
+        self.set_accels_for_action("win.play", &["<primary>p"]);
+        self.set_accels_for_action("win.copy", &["<primary>c"]);
+    }
+
+    #[cfg(feature="shortcuts")]
+    fn setup_accels(&self) {
+        self.set_accels_for_action("app.quit", &["<primary>q"]);
+
+        self.set_accels_for_action("queue.toggle", &["<primary>b"]);
+        self.set_accels_for_action("queue.search", &["<primary>f"]);
+        self.set_accels_for_action("queue.shuffle", &["r"]);
+        self.set_accels_for_action("queue.repeat-mode", &["c"]);
+
+        self.set_accels_for_action("win.seek-backwards", &["Left"]);
+        self.set_accels_for_action("win.seek-forward", &["Right"]);
+        self.set_accels_for_action("win.previous", &["p"]);
+        self.set_accels_for_action("win.next", &["n"]);
+        self.set_accels_for_action("win.play", &["space", "k"]);
+    }
+
 
     fn setup_settings(&self) {
         self.imp().settings.connect_changed(
