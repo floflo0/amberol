@@ -75,7 +75,12 @@ mod imp {
         fn activate(&self) {
             debug!("Application::activate");
 
-            self.obj().present_main_window();
+            let application = self.obj();
+            application.present_main_window();
+            #[cfg(feature="auto_restore_playlist")]
+            if let Some(window) = application.active_window() {
+                window.downcast_ref::<Window>().unwrap().restore_playlist();
+            }
         }
 
         fn open(&self, files: &[gio::File], _hint: &str) {

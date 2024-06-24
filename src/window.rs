@@ -487,7 +487,7 @@ impl Window {
         }));
     }
 
-    fn restore_playlist(&self) {
+    pub fn restore_playlist(&self) {
         if let Some(songs) = utils::load_cached_songs() {
             self.queue_songs(songs);
         }

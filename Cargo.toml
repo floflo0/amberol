@@ -8,8 +8,9 @@ version = "0.1.0"
 edition = "2018"
 
 [features]
-default = ["shortcuts"]
+default = ["shortcuts", "auto_restore_playlist"]
 shortcuts = []
+auto_restore_playlist = []
 
 [dependencies]
 color-thief = "0.2.1"
