@@ -171,7 +171,7 @@ impl VolumeControl {
         self.imp().volume_scale.add_controller(controller);
     }
 
-    fn toggle_mute(&self, muted: bool) {
+    pub fn toggle_mute(&self, muted: bool) {
         if muted != self.imp().toggle_mute.replace(muted) {
             if muted {
                 let prev_value = self.imp().volume_scale.value();
@@ -185,7 +185,17 @@ impl VolumeControl {
         }
     }
 
+    #[cfg(feature="volume_shortcuts")]
+    pub fn get_muted(&self) -> bool {
+        return self.imp().toggle_mute.get();
+    }
+
     pub fn volume(&self) -> f64 {
         self.imp().volume_scale.value()
+    }
+
+    #[cfg(feature="volume_shortcuts")]
+    pub fn set_volume(&self, volume: f64) {
+        self.imp().volume_scale.set_value(volume);
     }
 }

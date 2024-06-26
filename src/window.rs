@@ -29,6 +29,8 @@ use crate::{
     waveform_view::WaveformView,
 };
 
+const VOLUME_STEP: f64 = 0.05;
+
 pub enum WindowMode {
     InitialView,
     MainView,
@@ -157,6 +159,21 @@ mod imp {
             klass.install_action("queue.clear", None, move |win, _, _| {
                 debug!("Window::queue.clear()");
                 win.clear_queue();
+            });
+            #[cfg(feature="volume_shortcuts")]
+            klass.install_action("volume.increase", None, move |win, _, _| {
+                debug!("Window::volume.increase()");
+                win.increase_volume();
+            });
+            #[cfg(feature="volume_shortcuts")]
+            klass.install_action("volume.decrease", None, move |win, _, _| {
+                debug!("Window::volume.decrease()");
+                win.decrease_volume();
+            });
+            #[cfg(feature="volume_shortcuts")]
+            klass.install_action("volume.toggle-mute", None, move |win, _, _| {
+                debug!("Window::volume.toggle-mute()");
+                win.toggle_mute();
             });
             klass.install_property_action("queue.toggle", "playlist-visible");
             klass.install_property_action("queue.shuffle", "playlist-shuffled");
@@ -368,6 +385,30 @@ impl Window {
         if let Some(p) = self.player() {
             p.clear_queue();
         }
+    }
+
+    #[cfg(feature="volume_shortcuts")]
+    fn increase_volume(&self) {
+        let volume_control = self.imp().playback_control.volume_control();
+        if volume_control.get_muted() {
+            return;
+        }
+        volume_control.set_volume(volume_control.volume() + VOLUME_STEP);
+    }
+
+    #[cfg(feature="volume_shortcuts")]
+    fn decrease_volume(&self) {
+        let volume_control = self.imp().playback_control.volume_control();
+        if volume_control.get_muted() {
+            return;
+        }
+        volume_control.set_volume(volume_control.volume() - VOLUME_STEP);
+    }
+
+    #[cfg(feature="volume_shortcuts")]
+    fn toggle_mute(&self) {
+        let volume_control = self.imp().playback_control.volume_control();
+        volume_control.toggle_mute(!volume_control.get_muted());
     }
 
     fn playlist_visible(&self) -> bool {

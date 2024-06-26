@@ -62,6 +62,9 @@ mod imp {
             obj.setup_gactions();
             obj.setup_settings();
             obj.setup_accels();
+
+            #[cfg(feature="volume_shortcuts")]
+            obj.setup_volume_accels();
         }
     }
 
@@ -156,6 +159,12 @@ impl Application {
         self.set_accels_for_action("win.play", &["space", "k"]);
     }
 
+    #[cfg(feature="volume_shortcuts")]
+    fn setup_volume_accels(&self) {
+        self.set_accels_for_action("volume.increase", &["Up"]);
+        self.set_accels_for_action("volume.decrease", &["Down"]);
+        self.set_accels_for_action("volume.toggle-mute", &["m"]);
+    }
 
     fn setup_settings(&self) {
         self.imp().settings.connect_changed(
