@@ -1165,13 +1165,18 @@ impl Window {
             if state.current_song().is_some() {
                 let elapsed = state.position();
                 let duration = state.duration();
-                let remaining = duration.checked_sub(elapsed).unwrap_or_default();
-                self.set_song_time(Some(elapsed), Some(remaining));
+                #[cfg(not(feature="song_duration"))]
+                {
+                    let remaining = duration.checked_sub(elapsed).unwrap_or_default();
+                    self.set_song_time(Some(elapsed), Some(remaining), None);
+                }
+                #[cfg(feature="song_duration")]
+                self.set_song_time(Some(elapsed), None, Some(duration));
 
                 let position = state.position() as f64 / state.duration() as f64;
                 self.set_song_position(position);
             } else {
-                self.set_song_time(None, None);
+                self.set_song_time(None, None, None);
                 self.set_song_position(0.0);
             }
         }
@@ -1446,7 +1451,7 @@ impl Window {
         self.imp().replaygain_mode.get()
     }
 
-    pub fn set_song_time(&self, elapsed: Option<u64>, remaining: Option<u64>) {
+    pub fn set_song_time(&self, elapsed: Option<u64>, remaining: Option<u64>, duration: Option<u64>) {
         if let Some(elapsed) = elapsed {
             self.imp()
                 .elapsed_label
@@ -1459,6 +1464,10 @@ impl Window {
             self.imp()
                 .remaining_label
                 .set_text(&utils::format_remaining_time(remaining as i64));
+        } else if let Some(duration) = duration {
+            self.imp()
+                .remaining_label
+                .set_text(&utils::format_time(duration as i64));
         } else {
             self.imp().remaining_label.set_text("0:00");
         }
