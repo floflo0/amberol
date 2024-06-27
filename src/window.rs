@@ -96,6 +96,9 @@ mod imp {
         pub notify_nsongs_id: RefCell<Option<glib::SignalHandlerId>>,
         pub notify_current_id: RefCell<Option<glib::SignalHandlerId>>,
         pub notify_peaks_id: RefCell<Option<glib::SignalHandlerId>>,
+
+        #[cfg(feature="last_played_song")]
+        pub restoring_playlist: Cell<Option<usize>>,
     }
 
     #[glib::object_subclass]
@@ -233,6 +236,9 @@ mod imp {
                 notify_nsongs_id: RefCell::new(None),
                 notify_current_id: RefCell::new(None),
                 notify_peaks_id: RefCell::new(None),
+
+                #[cfg(feature="last_played_song")]
+                restoring_playlist: Cell::new(None),
             }
         }
     }
@@ -534,6 +540,8 @@ impl Window {
     pub fn restore_playlist(&self) {
         if let Some(songs) = utils::load_cached_songs() {
             self.queue_songs(songs);
+            #[cfg(feature="last_played_song")]
+            self.imp().restoring_playlist.set(utils::load_last_played_song());
         }
     }
 
@@ -628,6 +636,11 @@ impl Window {
                                         );
                                     }
                                 } else {
+                                    #[cfg(feature="last_played_song")]
+                                    if let Some(last_played_song) = win.imp().restoring_playlist.get() {
+                                        player.skip_to(last_played_song as u32);
+                                        win.imp().restoring_playlist.set(None);
+                                    }
                                     let msg = ni18n_f(
                                         // Translators: the `{}` must be left unmodified;
                                         // it will be expanded to the number of songs added
@@ -644,6 +657,12 @@ impl Window {
 
                             #[cfg(feature="autoplay")]
                             {
+                                #[cfg(feature="last_played_song")]
+                                if let Some(last_played_song) = win.imp().restoring_playlist.get() {
+                                    player.skip_to(last_played_song as u32);
+                                    win.imp().restoring_playlist.set(None);
+                                }
+
                                 if was_empty {
                                     player.play();
                                 } else if player.state().get_playback_state() == PlaybackState::Stopped {
@@ -1153,6 +1172,8 @@ impl Window {
                             } else if queue.current_song_index() != Some(real_pos) {
                                 player.skip_to(real_pos);
                                 player.play();
+                                #[cfg(feature="last_played_song")]
+                                utils::store_playlist(player.queue());
                             } else if !player.state().playing() {
                                 player.play();
                             }

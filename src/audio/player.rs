@@ -20,6 +20,9 @@ use crate::{
     },
 };
 
+#[cfg(feature="last_played_song")]
+use crate::utils;
+
 #[derive(Clone, Debug)]
 pub enum PlaybackAction {
     Play,
@@ -321,6 +324,9 @@ impl AudioPlayer {
             if was_playing {
                 self.set_playback_state(PlaybackState::Playing);
             }
+
+            #[cfg(feature="last_played_song")]
+            utils::store_playlist(self.queue());
         }
     }
 
@@ -355,6 +361,9 @@ impl AudioPlayer {
             if was_playing {
                 self.set_playback_state(PlaybackState::Playing);
             }
+
+            #[cfg(feature="last_played_song")]
+            utils::store_playlist(self.queue());
         } else {
             self.skip_to(0);
             self.set_playback_state(PlaybackState::Stopped);
