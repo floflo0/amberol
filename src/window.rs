@@ -910,6 +910,7 @@ impl Window {
                     let state = player.state();
                     if state.current_song().is_some() {
                         player.seek_position_rel(position);
+                        #[cfg(not(feature="better_seek"))]
                         player.play();
                     }
                 }

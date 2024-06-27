@@ -23,6 +23,11 @@ use crate::{
 #[cfg(feature="last_played_song")]
 use crate::utils;
 
+#[cfg(not(feature="better_seek"))]
+const SEEK_STEP: u64 = 10;
+#[cfg(feature="better_seek")]
+const SEEK_STEP: u64 = 5;
+
 #[derive(Clone, Debug)]
 pub enum PlaybackAction {
     Play,
@@ -105,7 +110,7 @@ impl From<ReplayGainMode> for i32 {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum SeekDirection {
     Forward,
     Backwards,
@@ -412,12 +417,22 @@ impl AudioPlayer {
     }
 
     fn seek(&self, offset: u64, direction: SeekDirection) {
+        let position = self.state.position();
+        let duration = self.state.duration();
         self.backend.seek(
-            self.state.position(),
-            self.state.duration(),
+            position,
+            duration,
             offset,
-            direction,
+            direction.clone(),
         );
+        #[cfg(feature="better_seek")]
+        {
+            let new_position = match direction {
+                SeekDirection::Forward => (position + offset).clamp(0, duration),
+                SeekDirection::Backwards => (position as i64 - offset as i64).clamp(0, duration as i64) as u64,
+            };
+            self.update_position(new_position);
+        }
     }
 
     pub fn seek_start(&self) {
@@ -431,17 +446,19 @@ impl AudioPlayer {
     }
 
     pub fn seek_backwards(&self) {
-        self.seek(10, SeekDirection::Backwards);
+        self.seek(SEEK_STEP, SeekDirection::Backwards);
     }
 
     pub fn seek_forward(&self) {
-        self.seek(10, SeekDirection::Forward);
+        self.seek(SEEK_STEP, SeekDirection::Forward);
     }
 
     pub fn seek_position_rel(&self, position: f64) {
         let duration = self.state.duration() as f64;
         let pos = (duration * position).clamp(0.0, duration);
         self.backend.seek_position(pos as u64);
+        #[cfg(feature="better_seek")]
+        self.update_position(pos as u64);
     }
 
     pub fn seek_position_abs(&self, position: u64) {
