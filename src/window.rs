@@ -29,6 +29,9 @@ use crate::{
     waveform_view::WaveformView,
 };
 
+#[cfg(feature="autoplay")]
+use crate::audio::PlaybackState;
+
 const VOLUME_STEP: f64 = 0.05;
 
 pub enum WindowMode {
@@ -607,22 +610,46 @@ impl Window {
                                 player.skip_to(0);
                             }
 
-                            // Allow jumping to the song we just added
-                            if songs.len() == 1 {
-                                // If we added a single song, and the queue was empty, we
-                                // dispense with the pleasantries and we start playing
-                                // immediately; otherwise, we let the user choose whether
-                                // to jump to the newly added song
+                            #[cfg(not(feature="autoplay"))]
+                            {
+                                // Allow jumping to the song we just added
+                                if songs.len() == 1 {
+                                    // If we added a single song, and the queue was empty, we
+                                    // dispense with the pleasantries and we start playing
+                                    // immediately; otherwise, we let the user choose whether
+                                    // to jump to the newly added song
+                                    if was_empty {
+                                        player.play();
+                                    } else {
+                                        win.add_skip_to_toast(
+                                            i18n("Added a new song"),
+                                            i18n("Play"),
+                                            queue.n_songs() - 1,
+                                        );
+                                    }
+                                } else {
+                                    let msg = ni18n_f(
+                                        // Translators: the `{}` must be left unmodified;
+                                        // it will be expanded to the number of songs added
+                                        // to the playlist
+                                        "Added one song",
+                                        "Added {} songs",
+                                        songs.len() as u32,
+                                        &[&songs.len().to_string()],
+                                    );
+
+                                    win.add_toast(msg);
+                                }
+                            }
+
+                            #[cfg(feature="autoplay")]
+                            {
                                 if was_empty {
                                     player.play();
-                                } else {
-                                    win.add_skip_to_toast(
-                                        i18n("Added a new song"),
-                                        i18n("Play"),
-                                        queue.n_songs() - 1,
-                                    );
+                                } else if player.state().get_playback_state() == PlaybackState::Stopped {
+                                    player.skip_to(queue.n_songs() - songs.len() as u32);
+                                    player.play();
                                 }
-                            } else {
                                 let msg = ni18n_f(
                                     // Translators: the `{}` must be left unmodified;
                                     // it will be expanded to the number of songs added
@@ -632,7 +659,6 @@ impl Window {
                                     songs.len() as u32,
                                     &[&songs.len().to_string()],
                                 );
-
                                 win.add_toast(msg);
                             }
                         }
