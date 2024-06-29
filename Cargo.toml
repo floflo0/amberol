@@ -17,6 +17,7 @@ default = [
     "last_played_song",
     "better_seek",
     "bigger_cover",
+    "music_dir",
 ]
 shortcuts = []
 auto_restore_playlist = []
@@ -26,6 +27,7 @@ autoplay = []
 last_played_song = []
 better_seek = []
 bigger_cover = []
+music_dir = []
 
 [dependencies]
 color-thief = "0.2.1"

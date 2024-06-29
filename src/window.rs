@@ -514,12 +514,21 @@ impl Window {
             filter.add_mime_type("audio/*");
             filters.append(&filter);
 
-            let dialog = gtk::FileDialog::builder()
+            let dialog_builder = gtk::FileDialog::builder()
                 .accept_label(i18n("_Add Song"))
                 .filters(&filters)
                 .modal(true)
-                .title(i18n("Open File"))
-                .build();
+                .title(i18n("Open File"));
+
+            #[cfg(feature="music_dir")]
+            let dialog_builder = if let Some(music_dir) = glib::user_special_dir(glib::UserDirectory::Music) {
+                dialog_builder.initial_folder(&gio::File::for_path(music_dir.as_path()))
+            } else {
+                dialog_builder
+            };
+
+            let dialog = dialog_builder.build();
+
 
             if let Ok(files) = dialog.open_multiple_future(Some(&win)).await {
                 if files.n_items() == 0 {
@@ -534,11 +543,19 @@ impl Window {
     fn add_folder(&self) {
         let ctx = glib::MainContext::default();
         ctx.spawn_local(clone!(@weak self as win => async move {
-            let dialog = gtk::FileDialog::builder()
+            let dialog_builder = gtk::FileDialog::builder()
                 .accept_label(i18n("_Add Folder"))
                 .modal(true)
-                .title(i18n("Open Folder"))
-                .build();
+                .title(i18n("Open Folder"));
+
+            #[cfg(feature="music_dir")]
+            let dialog_builder = if let Some(music_dir) = glib::user_special_dir(glib::UserDirectory::Music) {
+                dialog_builder.initial_folder(&gio::File::for_path(music_dir.as_path()))
+            } else {
+                dialog_builder
+            };
+
+            let dialog = dialog_builder.build();
 
             if let Ok(files) = dialog.select_multiple_folders_future(Some(&win)).await {
                 if files.n_items() == 0 {
