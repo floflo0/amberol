@@ -16,6 +16,7 @@ default = [
     "autoplay",
     "last_played_song",
     "better_seek",
+    "bigger_cover",
 ]
 shortcuts = []
 auto_restore_playlist = []
@@ -24,6 +25,7 @@ volume_shortcuts = []
 autoplay = []
 last_played_song = []
 better_seek = []
+bigger_cover = []
 
 [dependencies]
 color-thief = "0.2.1"

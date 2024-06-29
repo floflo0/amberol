@@ -32,7 +32,17 @@ use crate::{
 #[cfg(feature="autoplay")]
 use crate::audio::PlaybackState;
 
+#[cfg(feature="bigger_cover")]
+use std::time::Duration;
+#[cfg(feature="bigger_cover")]
+use crate::cover_picture::CoverSize;
+
 const VOLUME_STEP: f64 = 0.05;
+
+#[cfg(feature="bigger_cover")]
+const LARGE_COVER_MAX_WIDTH: i32 = 495;  // px
+#[cfg(feature="bigger_cover")]
+const LARGE_COVER_MAX_HEIGHT: i32 = 864;  // px
 
 pub enum WindowMode {
     InitialView,
@@ -55,6 +65,8 @@ mod imp {
         pub toast_overlay: TemplateChild<adw::ToastOverlay>,
         #[template_child]
         pub main_stack: TemplateChild<gtk::Stack>,
+        #[template_child]
+        pub toolbar_view: TemplateChild<adw::ToolbarView>,
         #[template_child]
         pub status_page: TemplateChild<adw::StatusPage>,
         #[template_child]
@@ -217,6 +229,7 @@ mod imp {
                 elapsed_label: TemplateChild::default(),
                 remaining_label: TemplateChild::default(),
                 main_stack: TemplateChild::default(),
+                toolbar_view: TemplateChild::default(),
                 status_page: TemplateChild::default(),
                 add_folder_button: TemplateChild::default(),
                 restore_playlist_button: TemplateChild::default(),
@@ -682,6 +695,9 @@ impl Window {
                             }
                         }
 
+                        #[cfg(feature="bigger_cover")]
+                        win.update_cover_size();
+
                         glib::ControlFlow::Break
                     })
             }),
@@ -898,6 +914,12 @@ impl Window {
             Some("show-sidebar"),
             clone!(@weak self as win => move |split_view, _| {
                 win.set_playlist_visible(split_view.shows_sidebar());
+                // We need to wait for animation of the sidebar to finish
+                #[cfg(feature="bigger_cover")]
+                glib::source::timeout_add_local(Duration::from_millis(100), move || {
+                    win.update_cover_size();
+                    return glib::ControlFlow::Break;
+                });
             }),
         );
 
@@ -1062,6 +1084,24 @@ impl Window {
             .playlist_view
             .playlist_searchbar()
             .set_key_capture_widget(Some(self.upcast_ref::<gtk::Widget>()));
+
+        #[cfg(feature="bigger_cover")]
+        {
+            self.connect_default_width_notify(|win| win.update_cover_size());
+            self.connect_default_height_notify(|win| win.update_cover_size());
+        }
+    }
+
+    #[cfg(feature="bigger_cover")]
+    pub fn update_cover_size(&self) {
+        let width = self.imp().toolbar_view.width();
+        let height = self.height();
+        let size = if width > LARGE_COVER_MAX_WIDTH && height > LARGE_COVER_MAX_HEIGHT {
+            CoverSize::ExtraLarge
+        } else {
+            CoverSize::Large
+        };
+        self.imp().song_cover.imp().album_image.set_cover_size(size);
     }
 
     // The initial state of the playback actions

@@ -95,7 +95,7 @@
                             <property name="sidebar-width-fraction">0.4</property>
 
                             <property name="content">
-                              <object class="AdwToolbarView">
+                              <object class="AdwToolbarView" id="toolbar_view">
 
                                 <!-- Header Bar -->
                                 <child type="top">
