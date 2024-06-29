@@ -987,6 +987,45 @@ impl Window {
                 }),
             );
 
+        #[cfg(any(feature="shortcuts", feature="volume_shortcuts"))]
+        {
+            let searchentry_focus_controller = gtk::EventControllerFocus::new();
+
+            searchentry_focus_controller.connect_enter(clone!(@weak self as win => move |_| {
+                debug!("Searchentry: focus enter");
+                #[cfg(feature="shortcuts")]
+                {
+                    win.action_set_enabled("queue.shuffle", false);
+                    win.action_set_enabled("queue.repeat-mode", false);
+                    win.action_set_enabled("win.seek-backwards", false);
+                    win.action_set_enabled("win.seek-forward", false);
+                    win.action_set_enabled("win.previous", false);
+                    win.action_set_enabled("win.next", false);
+                    win.action_set_enabled("win.play", false);
+                }
+                #[cfg(feature="volume_shortcuts")]
+                win.action_set_enabled("volume.toggle-mute", false);
+            }));
+
+            searchentry_focus_controller.connect_leave(clone!(@weak self as win => move |_| {
+                debug!("Searchentry: focus leave");
+                #[cfg(feature="shortcuts")]
+                {
+                    win.action_set_enabled("queue.shuffle", true);
+                    win.action_set_enabled("queue.repeat-mode", true);
+                    win.action_set_enabled("win.seek-backwards", true);
+                    win.action_set_enabled("win.seek-forward", true);
+                    win.action_set_enabled("win.previous", true);
+                    win.action_set_enabled("win.next", true);
+                    win.action_set_enabled("win.play", true);
+                }
+                #[cfg(feature="volume_shortcuts")]
+                win.action_set_enabled("volume.toggle-mute", true);
+            }));
+
+            self.imp().playlist_view.playlist_searchentry().add_controller(searchentry_focus_controller);
+        }
+
         self.imp().settings.connect_changed(
             Some("enable-recoloring"),
             clone!(@weak self as this => move |settings, _| {
