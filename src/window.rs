@@ -37,6 +37,7 @@ use std::time::Duration;
 #[cfg(feature="bigger_cover")]
 use crate::cover_picture::CoverSize;
 
+#[cfg(feature="volume_shortcuts")]
 const VOLUME_STEP: f64 = 0.05;
 
 #[cfg(feature="bigger_cover")]
