@@ -185,7 +185,7 @@ impl VolumeControl {
         }
     }
 
-    #[cfg(feature="volume_shortcuts")]
+    #[cfg(feature = "volume_shortcuts")]
     pub fn get_muted(&self) -> bool {
         return self.imp().toggle_mute.get();
     }
@@ -194,7 +194,7 @@ impl VolumeControl {
         self.imp().volume_scale.value()
     }
 
-    #[cfg(feature="volume_shortcuts")]
+    #[cfg(feature = "volume_shortcuts")]
     pub fn set_volume(&self, volume: f64) {
         self.imp().volume_scale.set_value(volume);
     }

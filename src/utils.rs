@@ -247,7 +247,7 @@ async fn store_current_pls(queue: &Queue) {
 
     pls.set_int64("playlist", "NumberOfEntries", queue.n_songs() as i64);
 
-    #[cfg(feature="last_played_song")]
+    #[cfg(feature = "last_played_song")]
     if let Some(last_played_song) = queue.current_song_index() {
         pls.set_int64("playlist", "LastPlayed", last_played_song as i64);
     }
@@ -309,7 +309,7 @@ pub fn load_cached_songs() -> Option<Vec<gio::File>> {
     Some(res)
 }
 
-#[cfg(feature="last_played_song")]
+#[cfg(feature = "last_played_song")]
 pub fn load_last_played_song() -> Option<usize> {
     let mut pls_cache = glib::user_cache_dir();
     pls_cache.push("amberol");

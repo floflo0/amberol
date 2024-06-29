@@ -12,7 +12,7 @@ pub enum CoverSize {
     #[default]
     Large = 0,
     Small = 1,
-    #[cfg(feature="bigger_cover")]
+    #[cfg(feature = "bigger_cover")]
     ExtraLarge = 2,
 }
 
@@ -21,7 +21,7 @@ impl AsRef<str> for CoverSize {
         match self {
             CoverSize::Large => "large",
             CoverSize::Small => "small",
-            #[cfg(feature="bigger_cover")]
+            #[cfg(feature = "bigger_cover")]
             CoverSize::ExtraLarge => "extra_large",
         }
     }
@@ -35,7 +35,7 @@ mod imp {
 
     const LARGE_SIZE: i32 = 192;
     const SMALL_SIZE: i32 = 48;
-    #[cfg(feature="bigger_cover")]
+    #[cfg(feature = "bigger_cover")]
     const EXTRA_LARGE_SIZE: i32 = 384;
 
     #[derive(Debug, Default)]
@@ -111,7 +111,7 @@ mod imp {
             match self.cover_size.get() {
                 CoverSize::Large => (LARGE_SIZE, LARGE_SIZE, -1, -1),
                 CoverSize::Small => (SMALL_SIZE, SMALL_SIZE, -1, -1),
-                #[cfg(feature="bigger_cover")]
+                #[cfg(feature = "bigger_cover")]
                 CoverSize::ExtraLarge => (EXTRA_LARGE_SIZE, EXTRA_LARGE_SIZE, -1, -1),
             }
         }

@@ -63,7 +63,7 @@ mod imp {
             obj.setup_settings();
             obj.setup_accels();
 
-            #[cfg(feature="volume_shortcuts")]
+            #[cfg(feature = "volume_shortcuts")]
             obj.setup_volume_accels();
         }
     }
@@ -80,7 +80,7 @@ mod imp {
 
             let application = self.obj();
             application.present_main_window();
-            #[cfg(feature="auto_restore_playlist")]
+            #[cfg(feature = "auto_restore_playlist")]
             if let Some(window) = application.active_window() {
                 window.downcast_ref::<Window>().unwrap().restore_playlist();
             }
@@ -126,7 +126,7 @@ impl Application {
         self.imp().player.clone()
     }
 
-    #[cfg(not(feature="shortcuts"))]
+    #[cfg(not(feature = "shortcuts"))]
     fn setup_accels(&self) {
         self.set_accels_for_action("queue.add-song", &["<primary>s"]);
         self.set_accels_for_action("queue.add-folder", &["<primary>a"]);
@@ -143,7 +143,7 @@ impl Application {
         self.set_accels_for_action("win.copy", &["<primary>c"]);
     }
 
-    #[cfg(feature="shortcuts")]
+    #[cfg(feature = "shortcuts")]
     fn setup_accels(&self) {
         self.set_accels_for_action("app.quit", &["<primary>q"]);
 
@@ -159,7 +159,7 @@ impl Application {
         self.set_accels_for_action("win.play", &["space", "k"]);
     }
 
-    #[cfg(feature="volume_shortcuts")]
+    #[cfg(feature = "volume_shortcuts")]
     fn setup_volume_accels(&self) {
         self.set_accels_for_action("volume.increase", &["Up"]);
         self.set_accels_for_action("volume.decrease", &["Down"]);

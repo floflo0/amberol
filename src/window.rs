@@ -29,21 +29,21 @@ use crate::{
     waveform_view::WaveformView,
 };
 
-#[cfg(feature="autoplay")]
+#[cfg(feature = "autoplay")]
 use crate::audio::PlaybackState;
 
-#[cfg(feature="bigger_cover")]
-use std::time::Duration;
-#[cfg(feature="bigger_cover")]
+#[cfg(feature = "bigger_cover")]
 use crate::cover_picture::CoverSize;
+#[cfg(feature = "bigger_cover")]
+use std::time::Duration;
 
-#[cfg(feature="volume_shortcuts")]
+#[cfg(feature = "volume_shortcuts")]
 const VOLUME_STEP: f64 = 0.05;
 
-#[cfg(feature="bigger_cover")]
-const LARGE_COVER_MAX_WIDTH: i32 = 495;  // px
-#[cfg(feature="bigger_cover")]
-const LARGE_COVER_MAX_HEIGHT: i32 = 864;  // px
+#[cfg(feature = "bigger_cover")]
+const LARGE_COVER_MAX_WIDTH: i32 = 495; // px
+#[cfg(feature = "bigger_cover")]
+const LARGE_COVER_MAX_HEIGHT: i32 = 864; // px
 
 pub enum WindowMode {
     InitialView,
@@ -110,7 +110,7 @@ mod imp {
         pub notify_current_id: RefCell<Option<glib::SignalHandlerId>>,
         pub notify_peaks_id: RefCell<Option<glib::SignalHandlerId>>,
 
-        #[cfg(feature="last_played_song")]
+        #[cfg(feature = "last_played_song")]
         pub restoring_playlist: Cell<Option<usize>>,
     }
 
@@ -179,17 +179,17 @@ mod imp {
                 debug!("Window::queue.clear()");
                 win.clear_queue();
             });
-            #[cfg(feature="volume_shortcuts")]
+            #[cfg(feature = "volume_shortcuts")]
             klass.install_action("volume.increase", None, move |win, _, _| {
                 debug!("Window::volume.increase()");
                 win.increase_volume();
             });
-            #[cfg(feature="volume_shortcuts")]
+            #[cfg(feature = "volume_shortcuts")]
             klass.install_action("volume.decrease", None, move |win, _, _| {
                 debug!("Window::volume.decrease()");
                 win.decrease_volume();
             });
-            #[cfg(feature="volume_shortcuts")]
+            #[cfg(feature = "volume_shortcuts")]
             klass.install_action("volume.toggle-mute", None, move |win, _, _| {
                 debug!("Window::volume.toggle-mute()");
                 win.toggle_mute();
@@ -251,7 +251,7 @@ mod imp {
                 notify_current_id: RefCell::new(None),
                 notify_peaks_id: RefCell::new(None),
 
-                #[cfg(feature="last_played_song")]
+                #[cfg(feature = "last_played_song")]
                 restoring_playlist: Cell::new(None),
             }
         }
@@ -410,7 +410,7 @@ impl Window {
         }
     }
 
-    #[cfg(feature="volume_shortcuts")]
+    #[cfg(feature = "volume_shortcuts")]
     fn increase_volume(&self) {
         let volume_control = self.imp().playback_control.volume_control();
         if volume_control.get_muted() {
@@ -419,7 +419,7 @@ impl Window {
         volume_control.set_volume(volume_control.volume() + VOLUME_STEP);
     }
 
-    #[cfg(feature="volume_shortcuts")]
+    #[cfg(feature = "volume_shortcuts")]
     fn decrease_volume(&self) {
         let volume_control = self.imp().playback_control.volume_control();
         if volume_control.get_muted() {
@@ -428,7 +428,7 @@ impl Window {
         volume_control.set_volume(volume_control.volume() - VOLUME_STEP);
     }
 
-    #[cfg(feature="volume_shortcuts")]
+    #[cfg(feature = "volume_shortcuts")]
     fn toggle_mute(&self) {
         let volume_control = self.imp().playback_control.volume_control();
         volume_control.toggle_mute(!volume_control.get_muted());
@@ -571,8 +571,10 @@ impl Window {
     pub fn restore_playlist(&self) {
         if let Some(songs) = utils::load_cached_songs() {
             self.queue_songs(songs);
-            #[cfg(feature="last_played_song")]
-            self.imp().restoring_playlist.set(utils::load_last_played_song());
+            #[cfg(feature = "last_played_song")]
+            self.imp()
+                .restoring_playlist
+                .set(utils::load_last_played_song());
         }
     }
 
@@ -1027,7 +1029,7 @@ impl Window {
                 }),
             );
 
-        #[cfg(any(feature="shortcuts", feature="volume_shortcuts"))]
+        #[cfg(any(feature = "shortcuts", feature = "volume_shortcuts"))]
         {
             let searchentry_focus_controller = gtk::EventControllerFocus::new();
 
@@ -1063,7 +1065,10 @@ impl Window {
                 win.action_set_enabled("volume.toggle-mute", true);
             }));
 
-            self.imp().playlist_view.playlist_searchentry().add_controller(searchentry_focus_controller);
+            self.imp()
+                .playlist_view
+                .playlist_searchentry()
+                .add_controller(searchentry_focus_controller);
         }
 
         self.imp().settings.connect_changed(
@@ -1103,14 +1108,14 @@ impl Window {
             .playlist_searchbar()
             .set_key_capture_widget(Some(self.upcast_ref::<gtk::Widget>()));
 
-        #[cfg(feature="bigger_cover")]
+        #[cfg(feature = "bigger_cover")]
         {
             self.connect_default_width_notify(|win| win.update_cover_size());
             self.connect_default_height_notify(|win| win.update_cover_size());
         }
     }
 
-    #[cfg(feature="bigger_cover")]
+    #[cfg(feature = "bigger_cover")]
     pub fn update_cover_size(&self) {
         let width = self.imp().toolbar_view.width();
         let height = self.height();
@@ -1351,12 +1356,12 @@ impl Window {
             if state.current_song().is_some() {
                 let elapsed = state.position();
                 let duration = state.duration();
-                #[cfg(not(feature="song_duration"))]
+                #[cfg(not(feature = "song_duration"))]
                 {
                     let remaining = duration.checked_sub(elapsed).unwrap_or_default();
                     self.set_song_time(Some(elapsed), Some(remaining), None);
                 }
-                #[cfg(feature="song_duration")]
+                #[cfg(feature = "song_duration")]
                 self.set_song_time(Some(elapsed), None, Some(duration));
 
                 let position = state.position() as f64 / state.duration() as f64;
@@ -1637,7 +1642,12 @@ impl Window {
         self.imp().replaygain_mode.get()
     }
 
-    pub fn set_song_time(&self, elapsed: Option<u64>, remaining: Option<u64>, duration: Option<u64>) {
+    pub fn set_song_time(
+        &self,
+        elapsed: Option<u64>,
+        remaining: Option<u64>,
+        duration: Option<u64>,
+    ) {
         if let Some(elapsed) = elapsed {
             self.imp()
                 .elapsed_label

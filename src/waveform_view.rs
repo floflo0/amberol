@@ -107,7 +107,7 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
 
-            #[cfg(not(feature="better_seek"))]
+            #[cfg(not(feature = "better_seek"))]
             self.obj().set_focusable(true);
 
             self.obj().setup_gesture();

@@ -20,12 +20,12 @@ use crate::{
     },
 };
 
-#[cfg(feature="last_played_song")]
+#[cfg(feature = "last_played_song")]
 use crate::utils;
 
-#[cfg(not(feature="better_seek"))]
+#[cfg(not(feature = "better_seek"))]
 const SEEK_STEP: u64 = 10;
-#[cfg(feature="better_seek")]
+#[cfg(feature = "better_seek")]
 const SEEK_STEP: u64 = 5;
 
 #[derive(Clone, Debug)]
@@ -330,7 +330,7 @@ impl AudioPlayer {
                 self.set_playback_state(PlaybackState::Playing);
             }
 
-            #[cfg(feature="last_played_song")]
+            #[cfg(feature = "last_played_song")]
             utils::store_playlist(self.queue());
         }
     }
@@ -367,7 +367,7 @@ impl AudioPlayer {
                 self.set_playback_state(PlaybackState::Playing);
             }
 
-            #[cfg(feature="last_played_song")]
+            #[cfg(feature = "last_played_song")]
             utils::store_playlist(self.queue());
         } else {
             self.skip_to(0);
@@ -419,17 +419,15 @@ impl AudioPlayer {
     fn seek(&self, offset: u64, direction: SeekDirection) {
         let position = self.state.position();
         let duration = self.state.duration();
-        self.backend.seek(
-            position,
-            duration,
-            offset,
-            direction.clone(),
-        );
-        #[cfg(feature="better_seek")]
+        self.backend
+            .seek(position, duration, offset, direction.clone());
+        #[cfg(feature = "better_seek")]
         {
             let new_position = match direction {
                 SeekDirection::Forward => (position + offset).clamp(0, duration),
-                SeekDirection::Backwards => (position as i64 - offset as i64).clamp(0, duration as i64) as u64,
+                SeekDirection::Backwards => {
+                    (position as i64 - offset as i64).clamp(0, duration as i64) as u64
+                }
             };
             self.update_position(new_position);
         }
@@ -457,7 +455,7 @@ impl AudioPlayer {
         let duration = self.state.duration() as f64;
         let pos = (duration * position).clamp(0.0, duration);
         self.backend.seek_position(pos as u64);
-        #[cfg(feature="better_seek")]
+        #[cfg(feature = "better_seek")]
         self.update_position(pos as u64);
     }
 
