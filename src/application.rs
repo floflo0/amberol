@@ -128,6 +128,8 @@ impl Application {
 
     #[cfg(not(feature = "shortcuts"))]
     fn setup_accels(&self) {
+        self.set_accels_for_action("app.quit", &["<primary>q"]);
+
         self.set_accels_for_action("queue.add-song", &["<primary>s"]);
         self.set_accels_for_action("queue.add-folder", &["<primary>a"]);
         self.set_accels_for_action("queue.clear", &["<primary>L"]);
