@@ -1,6 +1,73 @@
 Amberol
 =======
 
+This is a modified version of amberol. The original version is
+[here](https://gitlab.gnome.org/World/amberol). This version has added features
+that you can enable/disable in [Cargo.toml](./Cargo.toml).
+
+Features
+--------
+
+### shortcuts
+
+Change the default keyboard shortcuts.
+
+New Shortcuts:
+
+- `Control+b'`: toggle the playlist
+- `r`: toggle shuffling songs
+- `c`: toggle repeat mode
+- `Arrow left`: seek forward
+- `Arrow right`: seek backward
+- `n`: next
+- `p`: previous
+- `k` and `Space`: play/pause
+
+### auto_restore_playlist
+
+Automatically restore the playlist when launching Amberol.
+
+### song_duration
+
+Display the total song duration instead of the remaining time.
+
+### volume_shortcuts
+
+Add keyboard shortcuts to control the volume:
+
+- `Arrow up`: raise the volume
+- `Arrow down`: decrease the volume
+- `m`: Toggle mute
+
+### autoplay
+
+Automatically play songs when opening Amberol or when adding new songs.
+
+### last_played_song
+
+Remember the last played song when restoring the playlist.
+
+### better_seek
+
+Seek forward and backward are smoother with the keyboard.
+
+### bigger_cover
+
+If the window is big enough the cover of the song will be twice bigger.
+
+### music_dir
+
+The file dialog used for adding new songs open in the music folder by default
+instead of the recent folder.
+
+### cover_per_song
+
+Display the right cover for each song in the same album if they are different.
+This feature will increase a bit the loading time.
+
+Default README
+--------------
+
 ![Application icon](./data/icons/hicolor/scalable/apps/io.bassi.Amberol.svg)
 
 A small and simple sound and music player that is well integrated with GNOME.
