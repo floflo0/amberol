@@ -10,6 +10,8 @@ use std::{
 use gtk::{gdk, gio, glib, prelude::*};
 use log::debug;
 use once_cell::sync::OnceCell;
+
+#[cfg(not(feature = "cover_per_song"))]
 use sha2::{Digest, Sha256};
 
 use crate::utils;
@@ -134,21 +136,29 @@ impl CoverCache {
         // We use the album and artist to ensure we share the
         // same cover data for every track in the album; if we
         // don't have an album, we use the file name
+        #[cfg(feature = "cover_per_song")]
+        let mut hasher = crc32fast::Hasher::new();
+        #[cfg(not(feature = "cover_per_song"))]
         let mut hasher = Sha256::new();
         if let Some(album) = album {
-            hasher.update(&album);
+            hasher.update(&album.as_bytes());
 
             if let Some(artist) = album_artist {
-                hasher.update(&artist);
+                hasher.update(&artist.as_bytes());
             } else if let Some(artist) = track_artist {
-                hasher.update(&artist);
+                hasher.update(&artist.as_bytes());
             }
 
             if let Some(parent) = path.parent() {
-                hasher.update(parent.to_str().unwrap());
+                hasher.update(parent.to_str().unwrap().as_bytes());
             }
         } else {
-            hasher.update(path.to_str().unwrap());
+            hasher.update(path.to_str().unwrap().as_bytes());
+        }
+
+        #[cfg(feature = "cover_per_song")]
+        if let Some(picture) = tag.get_picture_type(lofty::PictureType::CoverFront) {
+            hasher.update(picture.data());
         }
 
         let uuid = format!("{:x}", hasher.finalize());
