@@ -333,6 +333,18 @@ impl Window {
         win.restore_window_state();
         win.set_initial_state();
 
+        #[cfg(feature="bigger_cover")]
+        glib::idle_add_local(clone!(@weak win => @default-return glib::ControlFlow::Break, move || {
+            let width = win.width();
+            let height = win.height();
+            if width == 0 && height == 0 {
+                return glib::ControlFlow::Continue;
+            }
+
+            win.update_cover_size();
+            return glib::ControlFlow::Break;
+        }));
+
         win
     }
 
@@ -714,9 +726,6 @@ impl Window {
                                 win.add_toast(msg);
                             }
                         }
-
-                        #[cfg(feature="bigger_cover")]
-                        win.update_cover_size();
 
                         glib::ControlFlow::Break
                     })
