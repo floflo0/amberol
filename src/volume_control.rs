@@ -142,16 +142,24 @@ impl VolumeControl {
         self.imp().volume_scale.set_adjustment(&adj);
         adj.connect_notify_local(
             Some("value"),
-            clone!(@strong self as this => move |adj, _| {
-                let value = adj.value();
-                if value == adj.lower() {
-                    this.imp().volume_low_button.set_icon_name("audio-volume-muted-symbolic");
-                } else {
-                    this.imp().volume_low_button.set_icon_name("audio-volume-low-symbolic");
+            clone!(
+                #[strong(rename_to = this)]
+                self,
+                move |adj, _| {
+                    let value = adj.value();
+                    if value == adj.lower() {
+                        this.imp()
+                            .volume_low_button
+                            .set_icon_name("audio-volume-muted-symbolic");
+                    } else {
+                        this.imp()
+                            .volume_low_button
+                            .set_icon_name("audio-volume-low-symbolic");
+                    }
+                    this.notify("volume");
+                    this.emit_by_name::<()>("volume-changed", &[&value]);
                 }
-                this.notify("volume");
-                this.emit_by_name::<()>("volume-changed", &[&value]);
-            }),
+            ),
         );
     }
 
@@ -160,14 +168,18 @@ impl VolumeControl {
             .name("volume-scroll")
             .flags(gtk::EventControllerScrollFlags::VERTICAL)
             .build();
-        controller.connect_scroll(clone!(@strong self as this => move |_, _, dy| {
-            debug!("Scroll delta: {}", dy);
-            let adj = this.imp().volume_scale.adjustment();
-            let delta = dy * adj.step_increment();
-            let d = (adj.value() - delta).clamp(adj.lower(), adj.upper());
-            adj.set_value(d);
-            glib::Propagation::Stop
-        }));
+        controller.connect_scroll(clone!(
+            #[strong(rename_to = this)]
+            self,
+            move |_, _, dy| {
+                debug!("Scroll delta: {}", dy);
+                let adj = this.imp().volume_scale.adjustment();
+                let delta = dy * adj.step_increment();
+                let d = (adj.value() - delta).clamp(adj.lower(), adj.upper());
+                adj.set_value(d);
+                glib::Propagation::Stop
+            }
+        ));
         self.imp().volume_scale.add_controller(controller);
     }
 
@@ -187,7 +199,7 @@ impl VolumeControl {
 
     #[cfg(feature = "volume_shortcuts")]
     pub fn get_muted(&self) -> bool {
-        return self.imp().toggle_mute.get();
+        self.imp().toggle_mute.get()
     }
 
     pub fn volume(&self) -> f64 {

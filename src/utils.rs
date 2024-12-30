@@ -5,7 +5,6 @@ use core::cmp::Ordering;
 use std::path::PathBuf;
 
 use color_thief::{get_palette, ColorFormat};
-use glib::clone;
 use gtk::{gdk, gio, glib, prelude::*};
 use log::{debug, warn};
 
@@ -241,7 +240,7 @@ pub fn load_files_from_folder(folder: &gio::File, recursive: bool) -> Vec<gio::F
     res
 }
 
-async fn store_current_pls(queue: &Queue) {
+pub fn store_playlist(queue: &Queue) {
     let pls = glib::KeyFile::new();
     pls.set_string("playlist", "X-GNOME-Title", "Amberol's current playlist");
 
@@ -271,13 +270,6 @@ async fn store_current_pls(queue: &Queue) {
         Ok(_) => debug!("Current playlist updated to: {:?}", &pls_cache),
         Err(e) => debug!("Unable to save current playlist: {e}"),
     }
-}
-
-pub fn store_playlist(queue: &Queue) {
-    let ctx = glib::MainContext::default();
-    ctx.spawn_local(clone!(@weak queue => async move {
-        store_current_pls(&queue).await
-    }));
 }
 
 pub fn load_cached_songs() -> Option<Vec<gio::File>> {
@@ -327,7 +319,7 @@ pub fn load_last_played_song() -> Option<usize> {
         Err(_) => 0,
     };
 
-    return Some(last_played);
+    Some(last_played)
 }
 
 pub fn has_cached_playlist() -> bool {

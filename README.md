@@ -55,11 +55,6 @@ Seek forward and backward are smoother with the keyboard.
 
 If the window is big enough the cover of the song will be twice bigger.
 
-### music_dir
-
-The file dialog used for adding new songs open in the music folder by default
-instead of the recent folder.
-
 ### cover_per_song
 
 Display the right cover for each song in the same album if they are different.
@@ -94,7 +89,7 @@ by using this command:
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     flatpak install flathub io.bassi.Amberol
 
-<a href="https://flathub.org/apps/details/io.bassi.Amberol"><img src="https://flathub.org/assets/badges/flathub-badge-en.png" width="200"/></a>
+<a href="https://flathub.org/apps/details/io.bassi.Amberol"><img src="https://flathub.org/api/badge?svg&locale=en" width="200"/></a>
 
 Getting in touch
 ----------------

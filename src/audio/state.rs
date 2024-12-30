@@ -149,7 +149,7 @@ impl PlayerState {
     }
 
     pub fn get_playback_state(&self) -> PlaybackState {
-        return self.imp().playback_state.get();
+        self.imp().playback_state.get()
     }
 
     pub fn current_song(&self) -> Option<Song> {
