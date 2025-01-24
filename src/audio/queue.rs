@@ -187,6 +187,7 @@ impl Queue {
         self.song_at(pos)
     }
 
+    #[cfg(not(feature = "cycle_previous"))]
     pub fn previous_song(&self) -> Option<Song> {
         if let Some(current_pos) = self.imp().current_pos.get() {
             if current_pos > 0 {
@@ -198,6 +199,43 @@ impl Queue {
         }
 
         None
+    }
+
+    #[cfg(feature = "cycle_previous")]
+    pub fn previous_song(&self) -> Option<Song> {
+        let store = &self.imp().model;
+
+        let n_songs = store.n_items();
+        if n_songs == 0 {
+            return None;
+        }
+
+        let repeat_mode = self.imp().repeat_mode.get();
+        if let Some(current) = self.current_song_index() {
+            let prev: Option<u32> = match repeat_mode {
+                RepeatMode::Consecutive if current > 0 => Some(current - 1),
+                RepeatMode::Consecutive if current == 0 => None,
+                RepeatMode::RepeatOne => Some(current),
+                RepeatMode::RepeatAll if current > 0 => Some(current - 1),
+                RepeatMode::RepeatAll if current == 0 => Some(n_songs - 1),
+                _ => None,
+            };
+
+            if let Some(prev) = prev {
+                self.imp().current_pos.replace(Some(prev));
+                self.notify("current");
+                self.song_at(prev)
+            } else {
+                self.imp().current_pos.replace(None);
+                self.notify("current");
+                None
+            }
+        } else {
+            // Return the first song
+            self.imp().current_pos.replace(Some(0));
+            self.notify("current");
+            self.song_at(0)
+        }
     }
 
     pub fn next_song(&self) -> Option<Song> {

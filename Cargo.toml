@@ -18,6 +18,7 @@ default = [
     "better_seek",
     "bigger_cover",
     "cover_per_song",
+    "cycle_previous"
 ]
 shortcuts = []
 auto_restore_playlist = []
@@ -28,6 +29,7 @@ last_played_song = []
 better_seek = []
 bigger_cover = []
 cover_per_song = ["dep:crc32fast"]
+cycle_previous = []
 
 [dependencies]
 color-thief = "0.2.1"

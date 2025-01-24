@@ -302,6 +302,7 @@ impl AudioPlayer {
                 return;
             }
 
+            #[cfg(not(feature = "cycle_previous"))]
             if self.queue.is_first_song() {
                 return;
             }

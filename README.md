@@ -60,6 +60,11 @@ If the window is big enough the cover of the song will be twice bigger.
 Display the right cover for each song in the same album if they are different.
 This feature will increase a bit the loading time.
 
+### cycle_previous
+
+When cycling is enable, allow to jump back to the last from the first song when
+clicking previous.
+
 Default README
 --------------
 
